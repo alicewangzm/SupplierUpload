@@ -37,8 +37,11 @@ interface PlaceType {
   description: string;
   structured_formatting: StructuredFormatting;
 }
+interface GoogleMapsProps {
+  getFilledAddress: (inputValue: string) => void
+}
 
-export default function GoogleMaps() {
+export default function GoogleMaps({ getFilledAddress }: GoogleMapsProps) {
   const [value, setValue] = React.useState<PlaceType | null>(null);
   const [inputValue, setInputValue] = React.useState("");
   const [options, setOptions] = React.useState<readonly PlaceType[]>([]);
@@ -105,6 +108,8 @@ export default function GoogleMaps() {
       }
     });
 
+    getFilledAddress(inputValue);
+
     return () => {
       active = false;
     };
@@ -112,7 +117,7 @@ export default function GoogleMaps() {
 
   return (
     <Autocomplete
-      id="supplier-address"
+      id="address"
       sx={{ width: 300 }}
       getOptionLabel={(option) =>
         typeof option === "string" ? option : option.description

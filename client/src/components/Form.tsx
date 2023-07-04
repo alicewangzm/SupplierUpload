@@ -1,7 +1,5 @@
 import "react-app-polyfill/ie11";
-import {useState} from "react";
-import { collection, addDoc } from "firebase/firestore";
-import { db } from "../firebase";
+import { useState } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import LogoUpload from "./LogoDrop";
@@ -16,6 +14,7 @@ import {
   useTheme,
 } from "@mui/material/styles";
 import AddressFill from "./AddressFill";
+import { uploadRecord, RecordProps } from "../services/UploadService";
 
 /*
 const addSupplierInfo = async () => {
@@ -106,45 +105,39 @@ const StyledForm = styled.div`
 
 export const SupplierForm = () => {
   const outerTheme = useTheme();
-  const [data, setData] = useState({});
+  const [data, setData] = useState<RecordProps>({} as RecordProps);
 
-  const handleInput = (event:any) => {
-    console.log(event.target);
-    const {id, value} = event.target;
-      setData({...data, [id]:value});
-  }
-  const handleAddress = (event:any) => {
-    console.log(event.target);
-    const {id, inputValue} = event.target;
-      setData({...data, [id]:inputValue});
-  }
-  const handleSubmit = async(event:any) => {
-    fetch("./submit", {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers:{
-        "Content-Type" : "application/json"
+  const getFilledAddress = (inputValue: string) => {
+    setData({ ...data, ["address"]: inputValue });
+  };
+
+  const getUploadedImage = (file: File) => {
+    if (file) {
+      var filereader = new FileReader();
+      filereader.readAsDataURL(file);
+      filereader.onload = function (evt) {
+         var base64 = evt?.target?.result as string;         
+         setData({ ...data, ["logo"]: base64});
       }
-    })
-    /*
-    event.preventDefault()
-    try{
-      const res = await addDoc(collection(db,"suppliers"),{
-      name: "name",
-      address: "22"
-    })
-    console.log(res.id);
-  } catch(err){
-    console.log(err);
-  }
-  */
-  
-  }
+    }
+  };
+
+  const handleInput = (event: any) => {
+    const { id, value } = event.target;
+    setData({ ...data, [id]: value });
+  };
+
+  const handleSubmit = async () => {
+    console.log(data);
+    
+    await uploadRecord(data);
+  };
+
   return (
     <ThemeProvider theme={customTheme(outerTheme)}>
       <StyledForm>
         <h1>Supplier Record</h1>
-        <LogoUpload/>
+        <LogoUpload getUploadedImage={getUploadedImage} />
         <Box
           component="form"
           sx={{
@@ -154,7 +147,7 @@ export const SupplierForm = () => {
           autoComplete="off"
         >
           <TextField
-            id="supplier-name"
+            id="name"
             label="Name"
             defaultValue=""
             variant="standard"
@@ -169,9 +162,8 @@ export const SupplierForm = () => {
           }}
           noValidate
           autoComplete="off"
-          onChange={handleAddress}
         >
-          <AddressFill/>
+          <AddressFill getFilledAddress={getFilledAddress} />
         </Box>
         <Box
           component="form"
@@ -182,7 +174,12 @@ export const SupplierForm = () => {
           autoComplete="off"
           color="secondary"
         >
-          <Button variant="contained" color="secondary" endIcon={<SendIcon />} onClick={handleSubmit}>
+          <Button
+            variant="contained"
+            color="secondary"
+            endIcon={<SendIcon />}
+            onClick={handleSubmit}
+          >
             Submit
           </Button>
         </Box>

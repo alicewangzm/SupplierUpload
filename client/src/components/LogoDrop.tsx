@@ -6,18 +6,23 @@ import Avatar from "@mui/material/Avatar";
 import { default as CloudUploadIcon } from "@mui/icons-material/CloudUpload";
 import { IconButton } from "@mui/material";
 
-const ImageUpload: React.FC = () => {
+interface ImageUploadProps {
+  getUploadedImage: (logo: File) => void
+}
+
+export default function ImageUpload({ getUploadedImage }: ImageUploadProps) {
   const [currentImage, setCurrentImage] = useState<File>();
   const [previewImage, setPreviewImage] = useState<string>("");
-  const [progress, setProgress] = useState<number>(0);
-  const [message, setMessage] = useState<string>("");
-  const [imageInfos, setImageInfos] = useState<Array<ILogo>>([]);
 
   const selectImage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedLogo = event.target.files as FileList;
     setCurrentImage(selectedLogo?.[0]);
     setPreviewImage(URL.createObjectURL(selectedLogo?.[0]));
-    setProgress(0);
+
+    event.preventDefault()
+    const file = selectedLogo?.[0]
+    
+    getUploadedImage(file)
   };
 /*
   const upload = () => {
@@ -149,5 +154,3 @@ const ImageUpload: React.FC = () => {
                         */
   );
 };
-
-export default ImageUpload;
