@@ -58,25 +58,24 @@ app.post("/submit", async (request, response) => {
           validation: "md5",
         })
       )
-      .on("finish", function () {
+      .on("finish", async function () {
         imagePath =
           "https://storage.googleapis.com/supplier-upload-rundoo.appspot.com/" +
           imageName;
-        console.log("Image Uploaded!");
+
+        const res = await db.collection("suppliers").add({
+          address: address,
+          name: name,
+          logo: imagePath,
+        });
+        if (res) {
+          response.sendStatus(600);
+        } else {
+          response.sendStatus(619);
+        }
       });
   } catch (e) {
     console.log(e);
-  }
-
-  const res = await db.collection("suppliers").add({
-    address: address,
-    name: name,
-    logo: imagePath,
-  });
-  if (res) {
-    response.sendStatus(600);
-  } else {
-    response.sendStatus(619);
   }
 });
 
