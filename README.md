@@ -1,14 +1,8 @@
 # Supplier Upload
-<table>
-<tr>
-<td>
-  This project I used Typescript and React to build the frontend. I stored data as a string in the backend connecting to firebase using Javascript. 
-</td>
-</table>
 
 ## Demo Video
 Click here to see the demo
-[<img src="" width=500 height=375>](https://www.youtube.com/watch?v=WRgjL2Rb_es&feature=youtu.be)
+[video](https://www.youtube.com/watch?v=ZyPRfcemy50&feature=youtu.be)
 
 ## Development
 This project is written in . To get started,
