@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -38,14 +38,15 @@ interface PlaceType {
   structured_formatting: StructuredFormatting;
 }
 interface GoogleMapsProps {
-  getFilledAddress: (inputValue: string) => void
+  getFilledAddress: (inputValue: string) => void;
+  hasSubmitted: boolean;
 }
 
-export default function GoogleMaps({ getFilledAddress }: GoogleMapsProps) {
-  const [value, setValue] = React.useState<PlaceType | null>(null);
-  const [inputValue, setInputValue] = React.useState("");
-  const [options, setOptions] = React.useState<readonly PlaceType[]>([]);
-  const loaded = React.useRef(false);
+export default function GoogleMaps({ getFilledAddress, hasSubmitted}: GoogleMapsProps) {
+  const [value, setValue] = useState<PlaceType | null>(null);
+  const [inputValue, setInputValue] = useState("");
+  const [options, setOptions] = useState<readonly PlaceType[]>([]);
+  const loaded = useRef(false);
 
   if (typeof window !== "undefined" && !loaded.current) {
     if (!document.querySelector("#google-maps")) {
@@ -58,7 +59,7 @@ export default function GoogleMaps({ getFilledAddress }: GoogleMapsProps) {
     loaded.current = true;
   }
 
-  const fetch = React.useMemo(
+  const fetch = useMemo(
     () =>
       debounce(
         (
@@ -75,7 +76,7 @@ export default function GoogleMaps({ getFilledAddress }: GoogleMapsProps) {
     []
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     let active = true;
 
     if (!autocompleteService.current && (window as any).google) {
@@ -114,6 +115,13 @@ export default function GoogleMaps({ getFilledAddress }: GoogleMapsProps) {
       active = false;
     };
   }, [value, inputValue, fetch]);
+
+  useEffect(() => {
+    if (hasSubmitted) {
+      setInputValue("");
+      setValue(null);
+    }
+  }, [hasSubmitted])
 
   return (
     <Autocomplete

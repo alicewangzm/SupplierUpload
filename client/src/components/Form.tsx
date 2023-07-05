@@ -16,18 +16,6 @@ import {
 import AddressFill from "./AddressFill";
 import { uploadRecord, RecordProps } from "../services/UploadService";
 
-/*
-const addSupplierInfo = async () => {
-  try {
-    const docRef = await addDoc(collection(db, "suppliers"), {
-      name: "Supplier 1",
-    });
-    console.log("Supplier written with ID: ", docRef.id);
-  } catch (e) {
-    console.error("Error adding document: ", e);
-  }
-};
-*/
 const customTheme = (outerTheme: Theme) =>
   createTheme({
     palette: {
@@ -106,9 +94,15 @@ const StyledForm = styled.div`
 export const SupplierForm = () => {
   const outerTheme = useTheme();
   const [data, setData] = useState<RecordProps>({} as RecordProps);
+  const [name, setName] = useState<string>("");
+  const [address, setAddress] = useState<string>("");
+  const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
 
   const getFilledAddress = (inputValue: string) => {
     setData({ ...data, ["address"]: inputValue });
+    if (inputValue != "") {
+      setHasSubmitted(false);
+    }
   };
 
   const getUploadedImage = (file: File) => {
@@ -116,28 +110,34 @@ export const SupplierForm = () => {
       var filereader = new FileReader();
       filereader.readAsDataURL(file);
       filereader.onload = function (evt) {
-         var base64 = evt?.target?.result as string;         
-         setData({ ...data, ["logo"]: base64});
-      }
+        var base64 = evt?.target?.result as string;
+        setData({ ...data, ["logo"]: base64 });
+        setHasSubmitted(false);
+      };
     }
   };
 
   const handleInput = (event: any) => {
     const { id, value } = event.target;
     setData({ ...data, [id]: value });
+    setName(value);
+    if (value != "") {
+      setHasSubmitted(false);
+    }
   };
 
   const handleSubmit = async () => {
-    console.log(data);
-    
     await uploadRecord(data);
+    window.alert(`You successfully submitted supplier: ${name}`);
+    setName("");
+    setHasSubmitted(true);
   };
 
   return (
     <ThemeProvider theme={customTheme(outerTheme)}>
       <StyledForm>
         <h1>Supplier Record</h1>
-        <LogoUpload getUploadedImage={getUploadedImage} />
+        <LogoUpload getUploadedImage={getUploadedImage} hasSubmitted={hasSubmitted} />
         <Box
           component="form"
           sx={{
@@ -149,9 +149,9 @@ export const SupplierForm = () => {
           <TextField
             id="name"
             label="Name"
-            defaultValue=""
             variant="standard"
             size="small"
+            value={name}
             onChange={handleInput}
           />
         </Box>
@@ -163,7 +163,7 @@ export const SupplierForm = () => {
           noValidate
           autoComplete="off"
         >
-          <AddressFill getFilledAddress={getFilledAddress} />
+          <AddressFill getFilledAddress={getFilledAddress} hasSubmitted={hasSubmitted} />
         </Box>
         <Box
           component="form"

@@ -7,10 +7,11 @@ import { default as CloudUploadIcon } from "@mui/icons-material/CloudUpload";
 import { IconButton } from "@mui/material";
 
 interface ImageUploadProps {
-  getUploadedImage: (logo: File) => void
+  getUploadedImage: (logo: File) => void,
+  hasSubmitted: boolean
 }
 
-export default function ImageUpload({ getUploadedImage }: ImageUploadProps) {
+export default function ImageUpload({ getUploadedImage, hasSubmitted}: ImageUploadProps) {
   const [currentImage, setCurrentImage] = useState<File>();
   const [previewImage, setPreviewImage] = useState<string>("");
 
@@ -24,6 +25,7 @@ export default function ImageUpload({ getUploadedImage }: ImageUploadProps) {
     
     getUploadedImage(file)
   };
+
 /*
   const upload = () => {
     setProgress(0);
@@ -59,6 +61,12 @@ export default function ImageUpload({ getUploadedImage }: ImageUploadProps) {
     });
   }, []);
 */
+  useEffect(() => {
+    if (hasSubmitted) {
+      setCurrentImage(undefined);
+      setPreviewImage("")
+    }
+  }, [hasSubmitted])
   return (
     <div>
       <input
